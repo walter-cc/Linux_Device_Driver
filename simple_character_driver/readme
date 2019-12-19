@@ -1,0 +1,26 @@
+/*                                                               
+# 191220 : 此範例執行步驟，已經可以執行。需要再補充程式裡的註解
+1) $make
+2) ls : 確認編好的檔案
+3) 載入module 「mydemo」 : sudo insmod mydemo.ko           ## 注意 : 是輸入檔>    案名稱(xxx.ko)
+4) 查詢module 「mydemo」 : sudo lsmod | grep "mydemo"
+sudo rmmod mydemo
+5) 查詢有無成功 : dmesg 指令來察看系統日誌
+[ 7938.150032] succeeded register char device: my_demo_dev
+[ 7938.150033] Major number = 244, minor number = 0
+6) cat /proc/devices
+244 my_demo_dev
+7) sudo mknod /dev/demo_drv c 244 0
+8) ll /dev/
+crw-r--r--   1 root    root    244,   0 十二 19 23:54 demo_drv
+9) gcc test.c -o test; ./test; dmesg
+[ 8255.113817] demodrv_open: major=244, minor=0
+[ 8255.113820] demodrv_read enter
+10) sudo rm /dev/demo_drv
+11) 移除module 「mydemo」 : sudo rmmod mydemo               ## 注意 : 是輸入模>    組名稱(xxx)
+
+===============================
+# 參考文件 :
+  張天飛，笨叔叔，奔跑吧內核
+
+  */
