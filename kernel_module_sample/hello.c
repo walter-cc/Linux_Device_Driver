@@ -51,6 +51,29 @@ hello                  16384  0
     https://jerrynest.io/how-to-write-a-linux-kernel-module/
 */
 
+/*
+# 此範例執行步驟
+1) 新增module_param使用範例
+2) sudo insmod hello.ko
+3) dmesg | grep walter
+[ 2333.076037] == Hello walter ! ==
+[ 2333.076038] [walter]module parameter = 1
+4) sudo rmmod hello
+5) sudo insmod hello.ko waltertest=345
+6) dmesg | grep walter
+[ 2333.076037] == Hello walter ! ==
+[ 2333.076038] [walter]module parameter = 1
+[ 2475.039928] == Bye walter ! ==
+[ 2477.813324] == Hello walter ! ==
+[ 2477.813325] [walter]module parameter = 345
+7) cc@kernel_module_sample$ll /sys/module/hello/parameters/
+total 0
+drwxr-xr-x 2 root root    0 十二 19 22:21 ./
+drwxr-xr-x 6 root root    0 十二 19 22:21 ../
+-rw-r--r-- 1 root root 4096 十二 19 22:21 waltertest
+===============================
+# 參考文件 : 張天飛，笨叔叔，奔跑吧內核
+*/
 
 
 #include <linux/init.h>
@@ -59,15 +82,19 @@ hello                  16384  0
 MODULE_DESCRIPTION("Hello_world");
 MODULE_LICENSE("GPL");
 
+static int waltertest = 1;
+module_param(waltertest,int,0644);
+
 static int hello_init(void)
 {
-    printk(KERN_INFO "== Hello Walter ! ==\n");
+    printk(KERN_INFO "== Hello walter ! ==\n");
+    printk(KERN_INFO "[walter]module parameter = %d\n", waltertest);
     return 0;
 }
 
 static void hello_exit(void)
 {
-    printk(KERN_INFO "== Bye Walter ! ==\n");
+    printk(KERN_INFO "== Bye walter ! ==\n");
 }
 
 module_init(hello_init);
