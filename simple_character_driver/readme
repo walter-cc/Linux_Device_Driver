@@ -10,14 +10,15 @@ sudo rmmod mydemo
 [ 7938.150033] Major number = 244, minor number = 0
 6) cat /proc/devices
 244 my_demo_dev
-7) sudo mknod /dev/demo_drv c 244 0
+7) 手動生成device node : mknod "file name" "type" "major" "minor", c : character device
+sudo mknod /dev/demo_drv c 244 0
 8) ll /dev/
 crw-r--r--   1 root    root    244,   0 十二 19 23:54 demo_drv
 9) gcc test.c -o test; ./test; dmesg
 [ 8255.113817] demodrv_open: major=244, minor=0
 [ 8255.113820] demodrv_read enter
-10) sudo rm /dev/demo_drv
-11) 移除module 「mydemo」 : sudo rmmod mydemo               ## 注意 : 是輸入模>    組名稱(xxx)
+10) 手動移除 device node : sudo rm /dev/demo_drv
+11) 移除 module 「mydemo」 : sudo rmmod mydemo               ## 注意 : 是輸入模>    組名稱(xxx)
 
 ===============================
 # 參考文件 :
