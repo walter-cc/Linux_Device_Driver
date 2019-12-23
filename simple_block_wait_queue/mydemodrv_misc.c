@@ -13,11 +13,13 @@
 DEFINE_KFIFO(mydemo_fifo, char, 64);
 
 struct mydemo_device {
-	const char *name;
-	struct device *dev;
-	struct miscdevice *miscdev;
-        wait_queue_head_t read_queue;
-	wait_queue_head_t write_queue;
+    const char *name;
+    struct device *dev;
+    struct miscdevice *miscdev;
+
+    // define 2 wait queue
+    wait_queue_head_t read_queue;
+    wait_queue_head_t write_queue;
 };
 
 struct mydemo_private_data {
@@ -68,18 +70,29 @@ demodrv_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 			return -EAGAIN;
 
 		printk("[walter]%s: pid=%d, going to sleep\n", __func__, current->pid);
-		ret = wait_event_interruptible(device->read_queue,
+        printk("[walter]%s: +++ kfifo_is_empty(&mydemo_fifo)=%d\n", __func__, kfifo_is_empty(&mydemo_fifo));
+
+        // sleep point, let user process sleep, will be waked up when kfifo_is_empty(&mydemo_fifo) = 0.
+        ret = wait_event_interruptible(device->read_queue,
 					!kfifo_is_empty(&mydemo_fifo));
+
+        printk("[walter]%s: --- kfifo_is_empty(&mydemo_fifo)=%d\n", __func__, kfifo_is_empty(&mydemo_fifo));
 		if (ret)
 			return ret;
 	}
 
+    // read kfifo to user process
 	ret = kfifo_to_user(&mydemo_fifo, buf, count, &actual_readed);
 	if (ret)
 		return -EIO;
 
+    printk("[walter]%s: +++ kfifo_is_full(&mydemo_fifo)=%d\n", __func__, kfifo_is_full(&mydemo_fifo));
+
+    // if kfifo is not full after data already sent to user, wake up the write user process
 	if (!kfifo_is_full(&mydemo_fifo))
 		wake_up_interruptible(&device->write_queue);
+
+    printk("[walter]%s: --- kfifo_is_full(&mydemo_fifo)=%d\n", __func__, kfifo_is_full(&mydemo_fifo));
 
 	printk("[walter]%s, pid=%d, actual_readed=%d, pos=%lld\n",__func__,
 			current->pid, actual_readed, *ppos);
@@ -110,8 +123,13 @@ demodrv_write(struct file *file, const char __user *buf, size_t count, loff_t *p
 	if (ret)
 		return -EIO;
 
+    printk("[walter]%s: +++ kfifo_is_empty(&mydemo_fifo)=%d\n", __func__, kfifo_is_empty(&mydemo_fifo));
+
+    // if kfifo is not empty, wake up the read user process
 	if (!kfifo_is_empty(&mydemo_fifo))
 		wake_up_interruptible(&device->read_queue);
+
+    printk("[walter]%s: --- kfifo_is_empty(&mydemo_fifo)=%d\n", __func__, kfifo_is_empty(&mydemo_fifo));
 
 	printk("[walter]%s: pid=%d, actual_write =%d, ppos=%lld, ret=%d\n", __func__,
 			current->pid, actual_write, *ppos, ret);
@@ -127,6 +145,7 @@ static const struct file_operations demodrv_fops = {
 	.write = demodrv_write
 };
 
+// misc device
 static struct miscdevice mydemodrv_misc_device = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = DEMO_NAME,
@@ -141,7 +160,7 @@ static int __init simple_char_init(void)
 	if (!device)
 		return -ENOMEM;
 
-    // create device node, no need to use "mknod", it's more convenient
+    // register misc device driver, automatically create device node, no need to use "mknod", it's more convenient
 	ret = misc_register(&mydemodrv_misc_device);
 	if (ret) {
 		printk("failed register misc device\n");
@@ -151,6 +170,7 @@ static int __init simple_char_init(void)
 	device->dev = mydemodrv_misc_device.this_device;
 	device->miscdev = &mydemodrv_misc_device;
 
+    // init 2 wait queue
 	init_waitqueue_head(&device->read_queue);
 	init_waitqueue_head(&device->write_queue);
 

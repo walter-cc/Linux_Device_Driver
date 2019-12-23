@@ -1,5 +1,5 @@
 /*
-# 191222 : 此範例執行步驟，已經可以執行。需要再補充程式裡的註解，以及詳細測試wait queue順序
+# 191222 : 此範例執行步驟，已經可以執行。已補充程式裡的註解，以及詳細測試wait queue順序
 1) $make
 2) ls : 確認編好的檔案
 3) 載入module 「mydemo_misc」 : sudo insmod mydemo_misc.ko           ## 注意 : 是輸入檔>    案名稱(xxx.ko)
@@ -13,20 +13,35 @@ sudo rmmod mydemo_misc
 7) 自動生成device node : ll /dev/ | grep my_demo
 crw-------   1 root    root     10,  53 十二 22 21:14 my_demo_dev
 
-8) sudo su; cat /dev/my_demo_dev &; dmesg
-[  125.070825] [walter]demodrv_open: major=10, minor=53
-[  125.070834] [walter]demodrv_read: pid=3145, going to sleep
+8) 實驗一 : sudo su; cat /dev/my_demo_dev &; dmesg
+[   64.455908] [walter]simple_char_init : succeeded register char device: my_demo_dev
+[  109.190627] [walter]demodrv_open: major=10, minor=53
+[  109.190658] [walter]demodrv_read: pid=2084, going to sleep
+[  109.190659] [walter]demodrv_read: +++ kfifo_is_empty(&mydemo_fifo)=1
 
 9) 實驗一 : echo "walter is studying linux now" > /dev/my_demo_dev
-[  199.596764] [walter]demodrv_open: major=10, minor=53
-[  199.596784] [walter]demodrv_write: pid=3135, actual_write =29, ppos=0, ret=0
-[  199.596795] [walter]demodrv_read, pid=3145, actual_readed=29, pos=0
-[  199.596805] [walter]demodrv_read: pid=3145, going to sleep
-[  199.596811] [walter]demodrv_release
+[   56.328829] [walter]simple_char_init : succeeded register char device: my_demo_dev
+[  109.190627] [walter]demodrv_open: major=10, minor=53
+[  109.190658] [walter]demodrv_read: pid=2084, going to sleep
+[  109.190659] [walter]demodrv_read: +++ kfifo_is_empty(&mydemo_fifo)=1
+[  139.808993] [walter]demodrv_open: major=10, minor=53
+[  139.809045] [walter]demodrv_write: +++ kfifo_is_empty(&mydemo_fifo)=0
+[  139.809049] [walter]demodrv_write: --- kfifo_is_empty(&mydemo_fifo)=0
+[  139.809050] [walter]demodrv_write: pid=2072, actual_write =29, ppos=0, ret=0
+[  139.809054] [walter]demodrv_read: --- kfifo_is_empty(&mydemo_fifo)=0
+[  139.809061] [walter]demodrv_read: +++ kfifo_is_full(&mydemo_fifo)=0
+[  139.809062] [walter]demodrv_read: --- kfifo_is_full(&mydemo_fifo)=0
+[  139.809063] [walter]demodrv_read, pid=2084, actual_readed=29, pos=0
+[  139.809072] [walter]demodrv_read: pid=2084, going to sleep
+[  139.809073] [walter]demodrv_read: +++ kfifo_is_empty(&mydemo_fifo)=1
+[  139.809079] [walter]demodrv_release
 
-9.1) 實驗二 : cc@simple_block_wait_queue$gcc test.c -o test
 
-cc@simple_block_wait_queue$sudo ./test
+8.1) 實驗二 : dmesg    # 191224 note : sudo su; cat /dev/my_demo_dev &; 這行不要執行
+[   93.327678] [walter]simple_char_init : succeeded register char device: my_demo_dev
+
+9.1) 實驗二 : cc@simple_block_wait_queue$sudo su
+root@cc-VirtualBox:/home/cc/githome/Linux_Device_Driver/simple_block_wait_queue# ./test
 [walter]read -1 bytes
 [walter]read buffer=
 [walter]have write 64 bytes
@@ -34,12 +49,18 @@ cc@simple_block_wait_queue$sudo ./test
 [walter]read 64 bytes
 [walter]read buffer=walter testing the virtual FIFO device
 
+
 cc@simple_block_wait_queue$dmesg
-[  290.431012] [walter]simple_char_init : succeeded register char device: my_demo_dev
-[  320.676156] [walter]demodrv_open: major=10, minor=53
-[  320.676341] [walter]demodrv_write: pid=2640, actual_write =64, ppos=0, ret=0
-[  320.676464] [walter]demodrv_read, pid=2640, actual_readed=64, pos=0
-[  320.676586] [walter]demodrv_release
+[   93.327678] [walter]simple_char_init : succeeded register char device: my_demo_dev
+[  113.847726] [walter]demodrv_open: major=10, minor=53
+[  113.847756] [walter]demodrv_write: +++ kfifo_is_empty(&mydemo_fifo)=0
+[  113.847757] [walter]demodrv_write: --- kfifo_is_empty(&mydemo_fifo)=0
+[  113.847758] [walter]demodrv_write: pid=2060, actual_write =64, ppos=0, ret=0
+[  113.847763] [walter]demodrv_read: +++ kfifo_is_full(&mydemo_fifo)=0
+[  113.847764] [walter]demodrv_read: --- kfifo_is_full(&mydemo_fifo)=0
+[  113.847765] [walter]demodrv_read, pid=2060, actual_readed=64, pos=0
+[  113.847771] [walter]demodrv_release
+
 
 10) 手動移除 device node : rm /dev/my_demo_dev
 11) 移除 module 「sudo 」 : rmmod my_demo_dev               ## 注意 : 是輸入模>    組名稱(xxx)
