@@ -1,0 +1,38 @@
+/*                                                               
+# 200105 : 此範例執行步驟，已經可以執行。已補充程式裡的註解，以及詳細測試 queue 順序
+
+1) $make
+
+2) ls : 確認編好的檔案
+
+3) 載入module 「mydemo_work」 : sudo insmod mydemo_work.ko           ## 注意 : 是輸入檔>    案名稱(xxx.ko)
+
+4) 查詢module 「mydemo_work」 : sudo lsmod | grep mydemo_work
+mydemo_work            16384  0
+
+5) 卸載 : sudo rmmod mydemo_work
+
+6) 查詢有無成功 : dmesg 指令來察看系統日誌
+
+[ 2357.399323] [walter]200105 : my_init: +++
+[ 2357.399327] [walter]my_init: This moudle is goint to sleep....
+[ 2357.399330] [walter]200105 : my_workqueue_handler: +++
+[ 2362.442673] [walter]my_workqueue_handler: time up MODULE !! wake up !!!!
+[ 2362.442687] [walter]200105 : my_workqueue_handler: ---
+[ 2362.442703] [walter]200105 : my_init: ---
+[ 2374.064212] [walter]200105 : my_exit: +++
+[ 2374.064215] [walter]200105 : my_exit: ---
+
+7) 
+可以看到掛載模組之後會先安排一個 work queue 去執行一個工作， 該工作的內容為在5秒候喚醒正在等待狀態的指定 wait queue。
+而之後模組會馬上進入wait queue 的等待狀態，並等待5秒後被 work queue 喚醒。喚醒之後則完成並結束 init_module() 的執行。
+
+這樣的情形好似該模組先設定好一個5秒之後會響的鬧鐘( work queue )，然後馬上跑去睡覺 (wait queue) 。5秒後鬧鐘就進行喚醒正在睡覺中的模組。
+
+
+===============================
+# 參考文件 :
+  在Raspberry Pi & Pi2 上面學 Linux 驅動程式開發 -- wait queue --
+  http://blog.ittraining.com.tw/2015/04/raspberry-pi-pi2-linux-wait-queue.html#more
+  
+*/
