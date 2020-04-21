@@ -1,7 +1,11 @@
 /*===============================
-    新增編譯和執行步驟 :
-    gcc fileIO.c -o test
-    ./test
+
+# 我們可以利用**gcc -E**來觀看程式碼被展開之後的樣子
+gcc -E test2.c
+
+# 新增編譯和執行步驟 :
+gcc fileIO.c -o test
+./test
 ===============================
 # 此範例可以看到 : 「習」
 
@@ -29,7 +33,7 @@ Walter error
 
 ===============================
 # 參考文件 :
-  
+
   - Linux 系統程式設計, 2/e(內容涵蓋 Linux Kernel 3.0)，Robert Love 著、蔣大偉 譯
     Linux System Programming: Talking Directly to the Kernel and C Library)
   - Linux 文件描述符简介(file descriptor)
@@ -49,13 +53,13 @@ Walter error
 int main(void) {
     int fd, size;
     char s[] = "Walter Programmer!\n", buffer[30];
-    
+
     // open後，該路徑底下會多一個"temp"檔案
     fd = open("/home/cc/githome/Linux_Device_Driver/simple_File_IO/temp", O_WRONLY|O_CREAT);
     // 將s的字串寫入"temp"檔案
     write(fd, s, sizeof(s));
     close(fd);
-    
+
     fd = open("/home/cc/githome/Linux_Device_Driver/simple_File_IO/temp", O_RDONLY);
     // 從fd( = "temp"檔案)讀取data並放入"buffer"裡面
     size = read(fd, buffer, sizeof(buffer));
@@ -67,7 +71,7 @@ int main(void) {
 
     write(1, "Walter haha\n", 13);
     write(2, "Walter error\n", 14);
-*/  
+*/
 
     return 0;
 }
