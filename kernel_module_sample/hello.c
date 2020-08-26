@@ -1,14 +1,22 @@
 /*
 # 此範例執行步驟
-1) 新增hello.c
-2) 新增Makefile
-3) cc@kernel_module_sample$make
-4) ls : 確認編好的檔案
-5) 載入module 「hello」 : sudo insmod hello.ko           ## 注意 : 是輸入檔案名稱(xxx.ko)
-6) 查詢module 「hello」 : sudo lsmod | grep "hello"
-7) 移除module 「hello」 : sudo rmmod hello               ## 注意 : 是輸入模組名稱(xxx)
-8) 查詢有無成功 : dmesg 指令來察看系統日誌
-   dmesg
+
+1. 新增hello.c
+
+2. 新增Makefile
+
+3. cc@kernel_module_sample$make
+
+4. ls : 確認編好的檔案
+
+5. 載入module 「hello」 : sudo insmod hello.ko ## 注意 : 是輸入檔案名稱(xxx.ko)
+
+6. 查詢module 「hello」 : sudo lsmod | grep "hello"
+
+7. 移除module 「hello」 : sudo rmmod hello ## 注意 : 是輸入模組名稱(xxx)
+
+8. 查詢有無成功 : dmesg 指令來察看系統日誌
+
 ===============================
 # 執行結果 : 
 
@@ -53,24 +61,75 @@ hello                  16384  0
 
 /*
 # 此範例執行步驟
-1) 新增module_param使用範例
-2) sudo insmod hello.ko
-3) dmesg | grep walter
-[ 2333.076037] == Hello walter ! ==
-[ 2333.076038] [walter]module parameter = 1
-4) sudo rmmod hello
-5) sudo insmod hello.ko waltertest=345
-6) dmesg | grep walter
+
+1. $make
+
+2. ls : 確認編好的檔案
+
+3. 載入 module 「mydemo」 : sudo insmod mydemo.ko       ## 注意 : 是輸入檔案名稱(xxx.ko)
+
+4. 查詢 module 「mydemo」 : sudo lsmod | grep "mydemo"
+
+5. 查詢有無成功 : dmesg 指令來察看系統日誌
+[ 7938.150032] succeeded register char device: my_demo_dev
+[ 7938.150033] Major number = 244, minor number = 0
+
+6. cat /proc/devices
+244 my_demo_dev
+
+7. 手動生成「device node」: mknod "file name" "type" "major" "minor", c : character device
+sudo mknod /dev/demo_drv c 244 0
+# note : "file name" = /dev/demo_drv = 這個會用在 user process(test.c)裡，來被"open"這個system call用
+
+8. ll /dev/
+crw-r--r--   1 root    root    244,   0 十二 19 23:54 demo_drv
+
+9. gcc test.c -o test; ./test; dmesg
+[ 8255.113817] demodrv_open: major=244, minor=0
+[ 8255.113820] demodrv_read enter
+
+10. 手動移除「device node」 : sudo rm /dev/demo_drv
+
+11. 移除 module 「mydemo」 : sudo rmmod mydemo      ## 注意 : 是輸入模組名稱(xxx)
+
+======================================
+
+# 新增module_param使用範例
+
+1. $make
+
+2. ls : 確認編好的檔案
+
+3. 載入 module : sudo insmod hello.ko       ## 注意 : 是輸入檔案名稱(xxx.ko)
+
+4. 查詢 module 「hello」 : sudo lsmod | grep "hello"
+
+5. dmesg
+
+[ 1705.671779] == Hello walter ! ==
+[ 1705.671780] [walter]module parameter = 1
+
+
+6. sudo rmmod hello
+
+7. sudo insmod hello.ko waltertest=345
+
+8. dmesg | grep walter
+
 [ 2333.076037] == Hello walter ! ==
 [ 2333.076038] [walter]module parameter = 1
 [ 2475.039928] == Bye walter ! ==
 [ 2477.813324] == Hello walter ! ==
 [ 2477.813325] [walter]module parameter = 345
-7) cc@kernel_module_sample$ll /sys/module/hello/parameters/
+
+
+9. cc@kernel_module_sample$ll /sys/module/hello/parameters/
+
 total 0
 drwxr-xr-x 2 root root    0 十二 19 22:21 ./
 drwxr-xr-x 6 root root    0 十二 19 22:21 ../
 -rw-r--r-- 1 root root 4096 十二 19 22:21 waltertest
+
 ===============================
 # 參考文件 : 張天飛，笨叔叔，奔跑吧內核
 */
