@@ -64,7 +64,7 @@ static int __init simple_char_init(void)
 		return ret;
 	}
 
-    // define in line 8,  cdev_alloc : produce struct cdev
+    // define in line 9,  cdev_alloc : produce struct cdev
 	demo_cdev = cdev_alloc();
 	if (!demo_cdev) {
 		printk("cdev_alloc failed\n");

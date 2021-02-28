@@ -1,0 +1,101 @@
+                                                          
+# 191222、210228 : 此範例執行步驟，已經可以執行
+1. `$make`
+-----------------------------
+cc@2_simple_character_driver$make
+make -C /usr/src/linux-headers-4.15.0-136-generic/ M=/home/cc/githome/Linux_Device_Driver/2_simple_character_driver modules;
+make[1]: Entering directory '/usr/src/linux-headers-4.15.0-136-generic'
+  CC [M]  /home/cc/githome/Linux_Device_Driver/2_simple_character_driver/simple_char.o
+  LD [M]  /home/cc/githome/Linux_Device_Driver/2_simple_character_driver/mydemo.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/cc/githome/Linux_Device_Driver/2_simple_character_driver/mydemo.mod.o
+  LD [M]  /home/cc/githome/Linux_Device_Driver/2_simple_character_driver/mydemo.ko
+make[1]: Leaving directory '/usr/src/linux-headers-4.15.0-136-generic'
+-----------------------------
+
+2. `ls` : 確認編好的檔案
+
+3. 載入module 「mydemo」 : `sudo insmod mydemo.ko`        ## 注意 : 是輸入檔>    案名稱(xxx.ko)
+
+4. 查詢module 「mydemo」 : `sudo lsmod | grep "mydemo"`
+-----------------------------
+cc@2_simple_character_driver$sudo lsmod | grep "mydemo"
+mydemo                 16384  0
+-----------------------------
+
+5. 查詢有無成功 : `dmesg` 指令來察看系統日誌
+-----------------------------
+[11207.919833] [walter]succeeded register char device: my_demo_dev
+[11207.919835] [walter]Major number = 243, minor number = 0
+-----------------------------
+
+6. 查詢有無在目錄 : `cat /proc/devices`
+-----------------------------
+cc@2_simple_character_driver$cat /proc/devices 
+Character devices:
+...
+243 my_demo_dev
+-----------------------------
+
+7. 手動生成「device node」 : `sudo mknod /dev/demo_drv c 243 0`
+mknod "file name" "type" "major" "minor", c : character device
+
+8. 查詢「device node」有無成功 : `ll /dev/`
+-----------------------------
+cc@2_simple_character_driver$ll /dev/ | grep "demo_drv"
+crw-r--r--   1 root    root    243,   0  二  28 12:44 demo_drv
+-----------------------------
+
+9. 執行應用程式 : `gcc test.c -o test; ./test`
+-----------------------------
+cc@2_simple_character_driver$gcc test.c -o test
+cc@2_simple_character_driver$./test
+open device /dev/demo_drv ok !
+-----------------------------
+
+10. 察看系統日誌 : `dmesg`
+-----------------------------
+[11718.319900] [walter]demodrv_open: major=243, minor=0
+[11718.319951] [walter]demodrv_read: enter
+[11718.319953] [walter]demodrv_release: enter
+-----------------------------
+
+11. 手動移除 device node : `sudo rm /dev/demo_drv`
+
+12. 移除 module 「mydemo」 : `sudo rmmod mydemo`    ## 注意 : 是輸入模>    組名稱(xxx)
+
+===============================
+# 191205、210228 :
+
+。設備號是系統中珍貴的資源。設備號 = 主設備號 + 次設備號。主設備號代表一類設備，次設備號代表同一類設備的不同個體。
+
+。Linux系統中「萬物皆文件」。device node也是一個文件，用來連接kernel space device driver & user space process。
+
+1. alloc_chrdev_region(dev_t *, unsigned, unsigned, const char *)
+
+    - 常用 : 「自動」分配一個主設備號，可以避免和系統占用的主設備號重覆。
+    
+    - register_chrdev_region : 設備號申請。
+    
+    e.g. :
+    
+    - static dev_t dev;                  // device number = major number + minor number
+    - static signed count = 1;     // how many minor numbers in this major number
+    - #define DEMO_NAME "my_demo_dev"    // 「字元裝置」(char device) 名稱
+
+2. cdev_alloc : 產生struct cdev，也就是「字元驅動」的struct。
+
+3. cdev_init : 初始化 struct cdev，並建立該設備與「file operation」(struct file_operations demodrv_fops )之間的連接關係。
+
+4. cdev_add : 把一個字元設備添加到系統中，通常在驅動程序的probe函數。
+
+5. cdev_del : 從系統中刪除一個 struct cdev。
+
+6. unregister_chrdev_region : 把主設備號釋放給系統。
+
+# 參考文件 :
+  張天飛，笨叔叔，奔跑吧內核
+  runninglinuxkernel_4.0/rlk_lab/rlk_basic/chapter_5
+  chapter-5-lab1-实验说明
+
