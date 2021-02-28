@@ -20,7 +20,8 @@
 ===============================
 # 執行結果 : 
 
-3) cc@kernel_module_sample$make
+3. cc@kernel_module_sample$make
+-----------------------------------------------------------
 make -C /usr/src/linux-headers-4.13.0-39-generic/ M=/home/cc/githome/Linux_Device_Driver/kernel_module_sample  modules
 make[1]: Entering directory '/usr/src/linux-headers-4.13.0-39-generic'
   CC [M]  /home/cc/githome/Linux_Device_Driver/kernel_module_sample/hello.o
@@ -29,29 +30,35 @@ make[1]: Entering directory '/usr/src/linux-headers-4.13.0-39-generic'
   CC      /home/cc/githome/Linux_Device_Driver/kernel_module_sample/hello.mod.o
   LD [M]  /home/cc/githome/Linux_Device_Driver/kernel_module_sample/hello.ko
 make[1]: Leaving directory '/usr/src/linux-headers-4.13.0-39-generic'
-
+-----------------------------------------------------------
     # note : 
       可用「uname -a」查詢自己的 Linux 與 Kernel版本
     cc@kernel_module_sample$uname -a
     Linux cc-VirtualBox 4.13.0-39-generic #44~16.04.1-Ubuntu SMP Thu Apr 5 16:43:10 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux
 
 
-4) ls -al : 確認編好的檔案
+4. ls -al : 確認編好的檔案
 cc@kernel_module_sample$ls
+-----------------------------------------------------------
 hello.c  hello.ko  hello.mod.c  hello.mod.o  hello.o  Makefile  modules.order  Module.symvers
+-----------------------------------------------------------
 
 
-6) 查詢module 「hello.ko」 : sudo lsmod | grep "hello"
+6. 查詢module 「hello.ko」 : sudo lsmod | grep "hello"
 cc@kernel_module_sample$sudo lsmod | grep 'hello'
+-----------------------------------------------------------
 hello                  16384  0
+-----------------------------------------------------------
 
 
-8) 查詢有無成功 : dmesg 指令來察看系統日誌
+8. 查詢有無成功 : dmesg 指令來察看系統日誌
    dmesg
-
+-----------------------------------------------------------
 ...(略)   
-[14162.950021] == Hello Walter ! ==
-[14255.757208] == Bye Walter ! ==
+[ 1825.351715] == Hello walter ! ==
+[ 1825.351716] [walter]module parameter = 1
+[ 1853.267947] == Bye walter ! ==
+-----------------------------------------------------------
 
 ===============================
 
@@ -66,10 +73,10 @@ hello                  16384  0
 4. 查詢 module 「hello」 : sudo lsmod | grep "hello"
 
 5. dmesg
-
+-----------------------------------------------------------
 [ 1705.671779] == Hello walter ! ==
 [ 1705.671780] [walter]module parameter = 1
-
+-----------------------------------------------------------
 
 6. sudo rmmod hello
 
@@ -77,19 +84,23 @@ hello                  16384  0
 
 8. dmesg | grep walter
 
-[ 2333.076037] == Hello walter ! ==
-[ 2333.076038] [walter]module parameter = 1
-[ 2475.039928] == Bye walter ! ==
-[ 2477.813324] == Hello walter ! ==
-[ 2477.813325] [walter]module parameter = 345
+# 螢幕輸出結果
+===============================
+[ 1825.351715] == Hello walter ! ==
+[ 1825.351716] [walter]module parameter = 1
+[ 1853.267947] == Bye walter ! ==
+[ 1938.586564] == Hello walter ! ==
+[ 1938.586565] [walter]module parameter = 345
+===============================
 
 
 9. cc@kernel_module_sample$ll /sys/module/hello/parameters/
-
+-----------------------------------------------------------
 total 0
 drwxr-xr-x 2 root root    0 十二 19 22:21 ./
 drwxr-xr-x 6 root root    0 十二 19 22:21 ../
 -rw-r--r-- 1 root root 4096 十二 19 22:21 waltertest
+-----------------------------------------------------------
 
 ===============================
 # 參考文件 : 
@@ -107,7 +118,7 @@ MODULE_DESCRIPTION("Hello_world");
 MODULE_LICENSE("GPL");
 
 static int waltertest = 1;
-module_param(waltertest,int,0644);
+module_param(waltertest, int, 0644);
 
 static int hello_init(void)
 {
