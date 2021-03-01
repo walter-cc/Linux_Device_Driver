@@ -1,0 +1,120 @@
+/*
+# 191222、210228 : 此範例執行步驟，已經可以執行。已補充程式裡的註解，以及詳細測試wait queue順序
+1. `$make`
+-----------------------------
+cc@3_sample_block_wait_queue$make
+make -C /usr/src/linux-headers-4.15.0-136-generic/ M=/home/cc/githome/Linux_Device_Driver/3_sample_block_wait_queue modules;
+make[1]: Entering directory '/usr/src/linux-headers-4.15.0-136-generic'
+  CC [M]  /home/cc/githome/Linux_Device_Driver/3_sample_block_wait_queue/mydemodrv_misc.o
+  LD [M]  /home/cc/githome/Linux_Device_Driver/3_sample_block_wait_queue/mydemo_misc.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/cc/githome/Linux_Device_Driver/3_sample_block_wait_queue/mydemo_misc.mod.o
+  LD [M]  /home/cc/githome/Linux_Device_Driver/3_sample_block_wait_queue/mydemo_misc.ko
+make[1]: Leaving directory '/usr/src/linux-headers-4.15.0-136-generic'
+-----------------------------
+
+2. `ls` : 確認編好的檔案
+
+3. 載入module 「mydemo_misc」 :`sudo insmod mydemo_misc.ko`     ## 注意 : 是輸入檔>    案名稱(xxx.ko)
+
+4. 查詢module 「mydemo_misc」 : `sudo lsmod | grep "mydemo_misc"`
+-----------------------------
+cc@3_sample_block_wait_queue$sudo lsmod | grep "mydemo_misc"
+mydemo_misc            16384  0
+-----------------------------
+
+5. 查詢有無成功 : `dmesg` 指令來察看系統日誌
+-----------------------------
+[  112.575038] [walter]simple_char_init : succeeded register char device: my_demo_dev
+-----------------------------
+
+6. 自動生成「device node」 : `ll /dev/ | grep "my_demo"`
+-----------------------------
+cc@3_sample_block_wait_queue$ll /dev/ | grep "my_demo"
+crw-------   1 root    root     10,  54  三   1 09:58 my_demo_dev
+-----------------------------
+
+7. 實驗一 : 
+`sudo su; cat /dev/my_demo_dev &`
+`dmesg`
+-----------------------------
+[  112.575038] [walter]simple_char_init : succeeded register char device: my_demo_dev
+[  260.973994] [walter]demodrv_open: major=10, minor=54
+[  260.974006] [walter]demodrv_read: pid=3434, going to sleep
+[  260.974007] [walter]demodrv_read: +++ kfifo_is_empty(&mydemo_fifo)=1
+[  268.712465] [walter]demodrv_read: --- kfifo_is_empty(&mydemo_fifo)=1
+[  268.712575] [walter]demodrv_release
+[  275.021594] [walter]demodrv_open: major=10, minor=54
+[  275.021606] [walter]demodrv_read: pid=3437, going to sleep
+[  275.021607] [walter]demodrv_read: +++ kfifo_is_empty(&mydemo_fifo)=1
+-----------------------------
+
+8. 實驗一 : 
+`echo "walter is studying linux now" > /dev/my_demo_dev`
+-----------------------------
+[  112.575038] [walter]simple_char_init : succeeded register char device: my_demo_dev
+[  260.973994] [walter]demodrv_open: major=10, minor=54
+[  260.974006] [walter]demodrv_read: pid=3434, going to sleep
+[  260.974007] [walter]demodrv_read: +++ kfifo_is_empty(&mydemo_fifo)=1
+[  268.712465] [walter]demodrv_read: --- kfifo_is_empty(&mydemo_fifo)=1
+[  268.712575] [walter]demodrv_release
+[  275.021594] [walter]demodrv_open: major=10, minor=54
+[  275.021606] [walter]demodrv_read: pid=3437, going to sleep
+[  275.021607] [walter]demodrv_read: +++ kfifo_is_empty(&mydemo_fifo)=1
+[  377.443745] [walter]demodrv_open: major=10, minor=54
+[  377.443769] [walter]demodrv_write: +++ kfifo_is_empty(&mydemo_fifo)=0
+[  377.443772] [walter]demodrv_write: --- kfifo_is_empty(&mydemo_fifo)=0
+[  377.443773] [walter]demodrv_write: pid=3424, actual_write =29, ppos=0, ret=0
+[  377.443777] [walter]demodrv_read: --- kfifo_is_empty(&mydemo_fifo)=0
+[  377.443783] [walter]demodrv_read: +++ kfifo_is_full(&mydemo_fifo)=0
+[  377.443783] [walter]demodrv_read: --- kfifo_is_full(&mydemo_fifo)=0
+[  377.443784] [walter]demodrv_read, pid=3437, actual_readed=29, pos=0
+[  377.443795] [walter]demodrv_read: pid=3437, going to sleep
+[  377.443796] [walter]demodrv_read: +++ kfifo_is_empty(&mydemo_fifo)=1
+[  377.443802] [walter]demodrv_release
+-----------------------------
+
+
+7.1. 實驗二 : `gcc test.c -o test`
+# 191224 note : sudo su; cat /dev/my_demo_dev &; 這行不要執行
+
+
+8.1. 實驗二 : cc@simple_block_wait_queue$`sudo su`
+-------------  User Space Log ----------------
+root@cc-VirtualBox:/home/cc/githome/Linux_Device_Driver/simple_block_wait_queue# ./test
+[walter]read -1 bytes
+[walter]read buffer=
+[walter]have write 64 bytes
+[walter]have write -1 bytes
+[walter]read 64 bytes
+[walter]read buffer=walter testing the virtual FIFO device
+-----------------------------
+
+cc@simple_block_wait_queue$dmesg
+-------------  Kernel Space Log ----------------
+[  125.772971] [walter]simple_char_init : succeeded register char device: my_demo_dev
+[  281.339183] [walter]demodrv_open: major=10, minor=54
+[  281.339205] [walter]demodrv_write: +++ kfifo_is_empty(&mydemo_fifo)=0
+[  281.339206] [walter]demodrv_write: --- kfifo_is_empty(&mydemo_fifo)=0
+[  281.339207] [walter]demodrv_write: pid=2753, actual_write =64, ppos=0, ret=0
+[  281.339214] [walter]demodrv_read: +++ kfifo_is_full(&mydemo_fifo)=0
+[  281.339215] [walter]demodrv_read: --- kfifo_is_full(&mydemo_fifo)=0
+[  281.339216] [walter]demodrv_read, pid=2753, actual_readed=64, pos=0
+[  281.339222] [walter]demodrv_release
+-----------------------------
+
+9. 手動移除 device node : `rm /dev/my_demo_dev`
+
+10. 移除 module 「my_demo_dev 」 : `rmmod my_demo_dev`      ## 注意 : 是輸入模>    組名稱(xxx)
+
+===============================
+# Linux kernel會把一些不符合預先確定的character device劃分為misc device，這類的主設備號為10。
+
+# misc_register : 自動創建device node，不需要使用mknod，這樣創建character device較方便。
+
+# 參考文件 :
+  張天飛，笨叔叔，奔跑吧內核
+  runninglinuxkernel_4.0/rlk_lab/rlk_basic/chapter_5
+  chapter-5-lab6-实验说明
+*/

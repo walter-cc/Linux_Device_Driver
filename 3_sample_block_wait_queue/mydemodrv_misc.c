@@ -17,9 +17,9 @@ struct mydemo_device {
     struct device *dev;
     struct miscdevice *miscdev;
 
-    // define 2 wait queue
-    wait_queue_head_t read_queue;
-    wait_queue_head_t write_queue;
+    // define 2 wait queue，動態初始化
+    wait_queue_head_t read_queue;   // wait_queue_head_t : 等待隊列頭
+    wait_queue_head_t write_queue;  // wait_queue_head_t : 等待隊列頭
 };
 
 struct mydemo_private_data {
@@ -171,8 +171,8 @@ static int __init simple_char_init(void)
 	device->miscdev = &mydemodrv_misc_device;
 
     // init 2 wait queue
-	init_waitqueue_head(&device->read_queue);
-	init_waitqueue_head(&device->write_queue);
+	init_waitqueue_head(&device->read_queue);   // 動態初始化 等待隊列頭 read_queue
+	init_waitqueue_head(&device->write_queue);  // 動態初始化 等待隊列頭 write_queue
 
 	mydemo_device = device;
 	printk("[walter]%s : succeeded register char device: %s\n", __func__, DEMO_NAME);
@@ -186,11 +186,11 @@ free_device:
 
 static void __exit simple_char_exit(void)
 {
-	printk("[walter]%s : removing device\n", __func__);
-
 	struct mydemo_device *dev = mydemo_device;
-
-	misc_deregister(dev->miscdev);
+    
+    printk("[walter]%s : removing device\n", __func__);
+	
+    misc_deregister(dev->miscdev);
 	kfree(dev);
 }
 

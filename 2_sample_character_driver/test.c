@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
         printf("open device %s ok !\n", DEMO_DEV_NAME);
 
     read(fd, buffer, sizeof(buffer));   // 從fd 讀取data並放入"buffer"裡面
-    // close(fd);
+    close(fd);
 
     return 0;
 }
