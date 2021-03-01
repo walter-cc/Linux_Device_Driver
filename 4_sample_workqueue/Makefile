@@ -12,5 +12,3 @@ all :
 clean:
 	$(MAKE) -C $(BASEINCLUDE) SUBDIRS=$(PWD) clean;
 	rm -f *.ko;
-
-

@@ -41,8 +41,10 @@ static void my_exit(void)   // exit point
 	flush_scheduled_work();         // 保證workqueue上的work都處理完了
     printk("[walter]200105 work queue : %s: ---\n", __func__);
 }
+
 /*
 ===============================
+# 螢幕輸出結果
 [ 2938.784923] [walter]200105 work queue : my_init: +++
 [ 2938.784926] [walter]200105 work queue : my_init: ---
 [ 2938.784930] [walter]200105 work queue : my_workqueue_handler: +++
@@ -51,5 +53,6 @@ static void my_exit(void)   // exit point
 [ 2980.187107] [walter]200105 work queue : my_exit: ---
 ===============================
 */
+
 module_init(my_init);
 module_exit(my_exit);
