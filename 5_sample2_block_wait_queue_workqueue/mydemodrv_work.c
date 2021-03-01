@@ -63,14 +63,14 @@ static int my_init(void)  // entry point
 /*
 ===============================
 # 螢幕輸出結果
-[ 1538.496642] [walter]200105 : my_init: +++
-[ 1538.496646] [walter]my_init: This moudle is goint to sleep....
-[ 1538.496649] [walter]200105 : my_workqueue_handler: +++
-[ 1543.650529] [walter]my_workqueue_handler: time up MODULE !! wake up !!!!
-[ 1543.650539] [walter]200105 : my_workqueue_handler: ---
-[ 1543.650547] [walter]200105 : my_init: ---
-[ 1613.332297] [walter]200105 : my_exit: +++
-[ 1613.332299] [walter]200105 : my_exit: ---
+[  151.414815] [walter]200105 : my_init: +++
+[  151.414818] [walter]my_init: This moudle is goint to sleep....
+[  151.414822] [walter]200105 : my_workqueue_handler: +++
+[  156.568117] [walter]my_workqueue_handler: time up MODULE !! wake up !!!!
+[  156.568124] [walter]200105 : my_workqueue_handler: ---
+[  156.568133] [walter]200105 : my_init: ---
+[  191.240729] [walter]200105 : my_exit: +++
+[  191.240731] [walter]200105 : my_exit: ---
 ===============================
 */    
 	return 0;

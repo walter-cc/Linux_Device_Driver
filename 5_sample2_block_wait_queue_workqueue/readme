@@ -3,15 +3,15 @@
 
 1. `$make`
 -----------------------------
-cc@4_sample2_block_wait_queue$make
-make -C /usr/src/linux-headers-4.15.0-136-generic/ M=/home/cc/githome/Linux_Device_Driver/4_sample2_block_wait_queue modules;
+cc@5_sample2_block_wait_queue_workqueue$make
+make -C /usr/src/linux-headers-4.15.0-136-generic/ M=/home/cc/githome/Linux_Device_Driver/5_sample2_block_wait_queue_workqueue modules;
 make[1]: Entering directory '/usr/src/linux-headers-4.15.0-136-generic'
-  CC [M]  /home/cc/githome/Linux_Device_Driver/4_sample2_block_wait_queue/mydemodrv_work.o
-  LD [M]  /home/cc/githome/Linux_Device_Driver/4_sample2_block_wait_queue/mydemo_work.o
+  CC [M]  /home/cc/githome/Linux_Device_Driver/5_sample2_block_wait_queue_workqueue/mydemodrv_work.o
+  LD [M]  /home/cc/githome/Linux_Device_Driver/5_sample2_block_wait_queue_workqueue/mydemo_work.o
   Building modules, stage 2.
   MODPOST 1 modules
-  CC      /home/cc/githome/Linux_Device_Driver/4_sample2_block_wait_queue/mydemo_work.mod.o
-  LD [M]  /home/cc/githome/Linux_Device_Driver/4_sample2_block_wait_queue/mydemo_work.ko
+  CC      /home/cc/githome/Linux_Device_Driver/5_sample2_block_wait_queue_workqueue/mydemo_work.mod.o
+  LD [M]  /home/cc/githome/Linux_Device_Driver/5_sample2_block_wait_queue_workqueue/mydemo_work.ko
 make[1]: Leaving directory '/usr/src/linux-headers-4.15.0-136-generic'
 -----------------------------
 
@@ -20,9 +20,8 @@ make[1]: Leaving directory '/usr/src/linux-headers-4.15.0-136-generic'
 3. 載入module 「mydemo_work」 : `sudo insmod mydemo_work.ko`        ## 注意 : 是輸入檔>    案名稱(xxx.ko)
 
 4. 查詢module 「mydemo_work」 : `sudo lsmod | grep mydemo_work`
-mydemo_work            16384  0
 -----------------------------
-cc@4_sample2_block_wait_queue$sudo lsmod | grep mydemo_work
+cc@5_sample2_block_wait_queue_workqueue$sudo lsmod | grep mydemo_work
 mydemo_work            16384  0
 -----------------------------
 
@@ -30,14 +29,14 @@ mydemo_work            16384  0
 
 6. 查詢有無成功 : `dmesg` 指令來察看系統日誌
 -----------------------------
-[ 1538.496642] [walter]200105 : my_init: +++
-[ 1538.496646] [walter]my_init: This moudle is goint to sleep....
-[ 1538.496649] [walter]200105 : my_workqueue_handler: +++
-[ 1543.650529] [walter]my_workqueue_handler: time up MODULE !! wake up !!!!
-[ 1543.650539] [walter]200105 : my_workqueue_handler: ---
-[ 1543.650547] [walter]200105 : my_init: ---
-[ 1613.332297] [walter]200105 : my_exit: +++
-[ 1613.332299] [walter]200105 : my_exit: ---
+[  151.414815] [walter]200105 : my_init: +++
+[  151.414818] [walter]my_init: This moudle is goint to sleep....
+[  151.414822] [walter]200105 : my_workqueue_handler: +++
+[  156.568117] [walter]my_workqueue_handler: time up MODULE !! wake up !!!!
+[  156.568124] [walter]200105 : my_workqueue_handler: ---
+[  156.568133] [walter]200105 : my_init: ---
+[  191.240729] [walter]200105 : my_exit: +++
+[  191.240731] [walter]200105 : my_exit: ---
 -----------------------------
 
 7.
