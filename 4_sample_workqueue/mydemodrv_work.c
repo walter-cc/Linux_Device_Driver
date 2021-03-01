@@ -24,7 +24,7 @@ static int my_init(void)  // entry point
     printk("[walter]200105 work queue : %s: +++\n", __func__);
     
     /* 
-    walter : 當初始化"排隊的人(= my_workqueue_handler)"，當系統排程至 workq 執行時會去呼叫該函式
+    walter : 初始化"排隊的人(= my_workqueue_handler)"，當系統排程至 workq 執行時會去呼叫該函式
     */
 	INIT_WORK(&workq, my_workqueue_handler);  
     
@@ -38,9 +38,18 @@ static int my_init(void)  // entry point
 static void my_exit(void)   // exit point
 {
     printk("[walter]200105 work queue : %s: +++\n", __func__);
-	flush_scheduled_work(); // 保證workqueue上的work都處理完了
+	flush_scheduled_work();         // 保證workqueue上的work都處理完了
     printk("[walter]200105 work queue : %s: ---\n", __func__);
 }
-
+/*
+===============================
+[ 2938.784923] [walter]200105 work queue : my_init: +++
+[ 2938.784926] [walter]200105 work queue : my_init: ---
+[ 2938.784930] [walter]200105 work queue : my_workqueue_handler: +++
+[ 2944.038182] [walter]200105 work queue : my_workqueue_handler: ---
+[ 2980.187105] [walter]200105 work queue : my_exit: +++
+[ 2980.187107] [walter]200105 work queue : my_exit: ---
+===============================
+*/
 module_init(my_init);
 module_exit(my_exit);
